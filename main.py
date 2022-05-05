@@ -96,7 +96,6 @@ admin: {admin}
 
 
 
-
 # the main game function
 class play:
     with open('songs.json') as f:
@@ -106,16 +105,22 @@ class play:
     song_name = song[artist][random.choice(choices)]
     def play():
         system('cls' if os.name == 'nt' else 'clear')
+        if stuff.guesses >= 5:
+            print("Sorry, you ran out guesses")
+            sleep(3)
+            menu()
         print(f"Artist: {play.artist}")
         print(f"First letter of the song is: ")
         for word in play.song_name.split():
             print(f"{word[0]}{'-'*int(len(word)-1) if len(word) >= 1 else ' '}", end=" ")
         print("")
+        print(f"You have {5-int(stuff.guesses)} guesses left")
         guess = input("Guess: ")
         if guess.lower() == play.song_name or guess.upper() == play.song_name:
             print("Congrats, you guessed correctly!")
             again = input("Play again[yes/no]? ")
             if again == 'yes':
+                stuff.guesses = 5
                 with open('songs.json') as f:
                     play.song = json.load(f)
                 play.artist = random.choice(list(play.song.keys()))
@@ -123,13 +128,12 @@ class play:
                 play.song_name = play.song[play.artist][random.choice(choices)]
                 play.play()
             else:
-                pass
+                menu()
         else:
             print("Incorrect!")
             sleep(2)
             stuff.guesses += 1
             play.play()
-
 
 def login(): # a login function that asks for a username and a password
     if stuff.login_tries >= 3:
@@ -163,8 +167,28 @@ def login(): # a login function that asks for a username and a password
         login()
 
 def menu():
-    print("hi")
+    system('cls' if os.name == 'nt' else 'clear')
+    print("""
+╔╦╗╔═╗╦╔╗╔  ╔╦╗╔═╗╔╗╔╦ ╦
+║║║╠═╣║║║║  ║║║║╣ ║║║║ ║
+╩ ╩╩ ╩╩╝╚╝  ╩ ╩╚═╝╝╚╝╚═╝
+====== music guessing game ======
+1. play the game
+2. logout
+3. exit
+""")
+    choice = input("Choice: ")
+    if choice == "1":
+        play.play()
+    elif choice == "2":
+        login()
+    elif choice == "3":
+        os._exit(1)
+    else:
+        print("Please enter a valid option next time")
+        sleep(2)
+        menu()
 
 setup()
 login()
-play.play()
+menu()
