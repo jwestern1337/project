@@ -47,11 +47,41 @@ class stuff:
     admin = ''
 
 
+def register():
+    username = input("Username: ")
+    password = input("Password: ")
+    if stuff.admin == True:
+        admin = input("Admin[yes/no]? ")
+    else:
+        admin = False
+    data = {
+        Encryption.encrypt(username): {
+            Encryption.encrypt('username'): Encryption.encrypt(username),
+            Encryption.encrypt('password'): Encryption.encrypt(password),
+            Encryption.encrypt('admin'): Encryption.encrypt(admin)
+        }
+    }
+    with open(f'creds/{Encryption.encrypt(username)}.json', 'a') as f:
+        json.dump(data, f,indent=4)
+    print(f"Created user {username} with password {password} and admin = {admin}")
+        
+    
+
+def delete_user():
+    username = input("User to delete: ")
+    if os.path.exists(f'creds/{Encryption.encrypt(username)}.json'):
+        try:
+            os.remove(f'creds/{Encryption.encrypt(username)}.json')
+            print(f"deleted user {username}")
+        except Exception as e:
+            print(e)
+
 
 def setup(): # if creds.json doesn't exist then create it with a username and password
-    if os.path.exists('creds.json'):
+    if os.path.exists('creds'):
         return True
     else:
+        os.mkdir('creds')
         print("No username or password file found. Please create a user")
         username = input("Username: ")
         password = input("Password: ")
@@ -86,7 +116,7 @@ admin: {admin}
                         Encryption.encrypt('admin'): admin
                     }
                 }
-                with open('creds.json', 'w') as f:
+                with open(f'creds/{username}.json', 'w') as f:
                     json.dump(data, f, indent=4)
                     print("Successfully created a user account, re directing to the main menu is 3 seconds...")
                     sleep(3)
@@ -120,7 +150,6 @@ class play:
             print("Congrats, you guessed correctly!")
             again = input("Play again[yes/no]? ")
             if again == 'yes':
-                stuff.guesses = 5
                 with open('songs.json') as f:
                     play.song = json.load(f)
                 play.artist = random.choice(list(play.song.keys()))
@@ -142,15 +171,15 @@ def login(): # a login function that asks for a username and a password
         os._exit(0)
     system('cls' if os.name == 'nt' else 'clear')
     username = input("Username: ")
-    with open(f'creds.json', 'r') as f:
-        cfg = json.load(f)
-        try:
+    try:
+        with open(f'creds/{Encryption.encrypt(username)}.json', 'r') as f:
+            cfg = json.load(f)
             cfg[Encryption.encrypt(username)][Encryption.encrypt('username')]
-        except:
-            stuff.login_tries += 1
-            print("This user does not exist!")
-            sleep(3)
-            login()
+    except FileNotFoundError:
+        stuff.login_tries += 1
+        print("This user does not exist!")
+        sleep(3)
+        login()
     password = input("Password: ")
     passw = Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('password')])
     if password == passw:
@@ -175,14 +204,35 @@ def menu():
 ====== music guessing game ======
 1. play the game
 2. logout
-3. exit
+3. register a user (admin only)
+4. delete a user (admin only)
+5. exit
 """)
     choice = input("Choice: ")
     if choice == "1":
         play.play()
     elif choice == "2":
         login()
+        menu()
     elif choice == "3":
+        if stuff.admin == True:
+            register()
+            sleep(2)
+            menu()
+        else:
+            print("This feature is for admin users only")
+            sleep(2)
+            menu()
+    elif choice == "4":
+        if stuff.admin == True:
+            delete_user()
+            sleep(2)
+            menu()
+        else:
+            print("This feature is for admin users only")
+            sleep(2)
+            menu()
+    elif choice == "5":
         os._exit(1)
     else:
         print("Please enter a valid option next time")
