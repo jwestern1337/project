@@ -3,7 +3,7 @@ import os, json, string, random, threading, ctypes, threading
 from os import system
 from time import sleep
 
-class COLOR:
+class COLOR: # color classes using ansi escape sequences, "borrowed" from https://github.com/sqlmapproject/sqlmap/blob/master/lib/core/enums.py
     BLUE = "\033[34m"
     BOLD_MAGENTA = "\033[35;1m"
     BOLD_GREEN = "\033[32;1m"
