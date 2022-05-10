@@ -218,7 +218,7 @@ def setup(): # if creds.json doesn't exist then create it with a username and pa
         admin = input("Admin[yes/no]? ")
         if admin != 'yes':
             if admin != 'no':
-                print("Please enter either 'yes' or 'no' next time!")
+                print(f"{COLOR.RED}Please enter either 'yes' or 'no' next time!")
                 sleep(3)
                 system('cls' if os.name == 'nt' else 'clear')
                 login()
@@ -307,7 +307,7 @@ def login(): # a login function that asks for a username and a password
             cfg[Encryption.encrypt(username)][Encryption.encrypt('username')]
     except FileNotFoundError:
         stuff.login_tries += 1
-        print("This user does not exist!")
+        print(f"{COLOR.RED}This user does not exist!")
         sleep(3)
         login()
     password = input("Password: ")
@@ -321,8 +321,8 @@ def login(): # a login function that asks for a username and a password
             stuff.admin = False
     else:
         stuff.login_tries += 1
-        print("Password does not match user!")
-        input()
+        print(f"{COLOR.RED}Password does not match user!")
+        sleep(3)
         login()
 
 def menu():
@@ -332,11 +332,11 @@ def menu():
 {COLOR.CYAN}║║║╠═╣║║║║  {COLOR.LIGHT_MAGENTA}║║║║╣ ║║║║ ║
 {COLOR.CYAN}╩ ╩╩ ╩╩╝╚╝  {COLOR.LIGHT_MAGENTA}╩ ╩╚═╝╝╚╝╚═╝
 {COLOR.LIGHT_GREEN}====== music guessing game ======
-1. play the game
+{COLOR.YELLOW}1. play the game
 2. logout
 3. register a user (admin only)
 4. delete a user (admin only)
-5. exit
+5. exit{COLOR.RESET}
 """)
     choice = input("Choice: ")
     if choice == "1":
@@ -350,7 +350,7 @@ def menu():
             sleep(2)
             menu()
         else:
-            print("This feature is for admin users only")
+            print(f"{COLOR.RED}This feature is for admin users only")
             sleep(2)
             menu()
     elif choice == "4":
@@ -359,13 +359,13 @@ def menu():
             sleep(2)
             menu()
         else:
-            print("This feature is for admin users only")
+            print(f"{COLOR.RED}This feature is for admin users only")
             sleep(2)
             menu()
     elif choice == "5":
         os._exit(1)
     else:
-        print("Please enter a valid option next time")
+        print(f"{COLOR.RED}Please enter a valid option next time")
         sleep(2)
         menu()
 
