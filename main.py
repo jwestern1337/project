@@ -37,26 +37,7 @@ class COLOR: # color classes using ansi escape sequences, "borrowed" from https:
     WHITE = "\033[97m"
     BOLD_BLACK = "\033[30;1m"
     RED = "\033[31m"
-    UNDERLINE = "\033[4m"
 
-class BACKGROUND:
-    BLUE = "\033[44m"
-    LIGHT_GRAY = "\033[47m"
-    YELLOW = "\033[43m"
-    DARK_GRAY = "\033[100m"
-    LIGHT_RED = "\033[101m"
-    CYAN = "\033[46m"
-    MAGENTA = "\033[45m"
-    LIGHT_MAGENTA = "\033[105m"
-    LIGHT_GREEN = "\033[102m"
-    RESET = "\033[0m"
-    LIGHT_YELLOW = "\033[103m"
-    LIGHT_BLUE = "\033[104m"
-    LIGHT_CYAN = "\033[106m"
-    BLACK = "\033[40m"
-    GREEN = "\033[42m"
-    WHITE = "\033[107m"
-    RED = "\033[41m"
 
 def title(): # ugly animated title code ahhhhhhhhhh
     while True:
@@ -199,12 +180,17 @@ def register():
 
 def delete_user():
     username = input("User to delete: ")
-    if os.path.exists(f'creds/{Encryption.encrypt(username)}.json'):
-        try:
-            os.remove(f'creds/{Encryption.encrypt(username)}.json')
-            print(f"deleted user {username}")
-        except Exception as e:
-            print(e)
+    if username == stuff.username:
+        print(f"{COLOR.RED}You cannot delete {username} as you are logged in as them!")
+        sleep(3)
+        menu()
+    else:
+        if os.path.exists(f'creds/{Encryption.encrypt(username)}.json'):
+            try:
+                os.remove(f'creds/{Encryption.encrypt(username)}.json')
+                print(f"deleted user {username}")
+            except Exception as e:
+                print(e)
 
 
 def setup(): # if creds.json doesn't exist then create it with a username and password
@@ -372,3 +358,4 @@ def menu():
 setup()
 login()
 menu()
+
