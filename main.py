@@ -220,6 +220,8 @@ admin: {admin}
                 sleep(3)
                 system('cls' if os.name == 'nt' else 'clear')
                 login()
+            elif confirm == 'no':
+                setup()
         elif confirm == 'yes':
             try:
                 username = Encryption.encrypt(username)
@@ -293,7 +295,7 @@ def login(): # a login function that asks for a username and a password
             cfg[Encryption.encrypt(username)][Encryption.encrypt('username')]
     except FileNotFoundError:
         stuff.login_tries += 1
-        print(f"{COLOR.RED}This user does not exist!")
+        print(f"{COLOR.RED}This user does not exist!{COLOR.RESET}")
         sleep(3)
         login()
     password = input("Password: ")
