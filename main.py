@@ -38,79 +38,18 @@ class COLOR: # color classes using ansi escape sequences, "borrowed" from https:
     BOLD_BLACK = "\033[30;1m"
     RED = "\033[31m"
 
+def slow_title(message):
+    for i in range(len(message)+1):
+        ctypes.windll.kernel32.SetConsoleTitleW(message[:i])
+        sleep(0.1)
+    for i in range(len(message)+1):
+        ctypes.windll.kernel32.SetConsoleTitleW(message[i:])
+        sleep(0.1)
+        
 
 def title(): # ugly animated title code ahhhhhhhhhh
     while True:
-        ctypes.windll.kernel32.SetConsoleTitleW("m")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("mu")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("mus")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("musi")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music ")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music g")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music gu")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music gues")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guess")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessi")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing ")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing g")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing ga")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing gam")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing game")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing gam")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing ga")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing g")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing ")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessing")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessin")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guessi")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music guess")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music gues")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music gue")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music gu")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music g")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music ")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("music")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("musi")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("mus")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("mu")
-        sleep(0.1)
-        ctypes.windll.kernel32.SetConsoleTitleW("m")
-        sleep(0.1)
+        slow_title("Music guessing game")
 
 threading.Thread(target=title).start()
 
@@ -154,9 +93,10 @@ class stuff:
     login_tries = 0
     username = ''
     guesses = 0
-    score = 0
+    score = 5
     admin = ''
 
+        
 
 def register():
     username = input("Username: ")
@@ -246,42 +186,48 @@ admin: {admin}
 
 # the main game function
 class play:
-    with open('songs.json') as f:
-        song = json.load(f)
-    artist = random.choice(list(song.keys()))
-    choices = ['song name', 'song name2']
-    song_name = song[artist][random.choice(choices)]
-    def play():
-        system('cls' if os.name == 'nt' else 'clear')
-        if stuff.guesses >= 5:
-            print("Sorry, you ran out guesses")
-            sleep(3)
-            menu()
-        print(f"Artist: {play.artist}")
-        print(f"First letter of the song is: ")
-        for word in play.song_name.split():
-            print(f"{word[0]}{'-'*int(len(word)-1) if len(word) >= 1 else ' '}", end=" ")
-        print("")
-        print(f"You have {5-int(stuff.guesses)} guesses left")
-        guess = input("Guess: ")
-        if guess.lower() == play.song_name or guess.upper() == play.song_name:
-            print("Congrats, you guessed correctly!")
-            again = input("Play again[yes/no]? ")
-            if again == 'yes':
-                with open('songs.json') as f:
-                    play.song = json.load(f)
-                play.artist = random.choice(list(play.song.keys()))
-                choices = ['song name', 'song name2']
-                play.song_name = play.song[play.artist][random.choice(choices)]
-                play.play()
-            else:
+    try:
+        with open('songs.json') as f:
+            song = json.load(f)
+        artist = random.choice(list(song.keys()))
+        choices = ['song name', 'song name2']
+        song_name = song[artist][random.choice(choices)]
+        def play():
+            try:
+                system('cls' if os.name == 'nt' else 'clear')
+                if stuff.guesses >= 5:
+                    print("Sorry, you ran out guesses")
+                    sleep(3)
+                    menu()
+                print(f"Artist: {play.artist}")
+                print(f"First letter of the song is: ")
+                for word in play.song_name.split():
+                    print(f"{word[0]}{'-'*int(len(word)-1) if len(word) >= 1 else ' '}", end=" ")
+                print("")
+                print(f"You have {5-int(stuff.guesses)} guesses left")
+                guess = input("Guess: ")
+                if guess.lower() == play.song_name or guess.upper() == play.song_name:
+                    print(f"Congrats, you guessed correctly! you have a score of {stuff.score}")
+                    again = input("Play again[yes/no]? ")
+                    if again == 'yes':
+                        with open('songs.json') as f:
+                            play.song = json.load(f)
+                        play.artist = random.choice(list(play.song.keys()))
+                        choices = ['song name', 'song name2']
+                        play.song_name = play.song[play.artist][random.choice(choices)]
+                        play.play()
+                    else:
+                        menu()
+                else:
+                    print("Incorrect!")
+                    sleep(2)
+                    stuff.guesses += 1
+                    stuff.score -= 1
+                    play.play()
+            except KeyboardInterrupt:
                 menu()
-        else:
-            print("Incorrect!")
-            sleep(2)
-            stuff.guesses += 1
-            play.play()
-
+    except KeyboardInterrupt:
+        menu()
 def login(): # a login function that asks for a username and a password
     if stuff.login_tries >= 3:
         print("Maximum login tries exceeded, goodbye")
@@ -289,29 +235,32 @@ def login(): # a login function that asks for a username and a password
         os._exit(0)
     system('cls' if os.name == 'nt' else 'clear')
     username = input("Username: ")
-    try:
-        with open(f'creds/{Encryption.encrypt(username)}.json', 'r') as f:
-            cfg = json.load(f)
-            cfg[Encryption.encrypt(username)][Encryption.encrypt('username')]
-    except FileNotFoundError:
-        stuff.login_tries += 1
-        print(f"{COLOR.RED}This user does not exist!{COLOR.RESET}")
-        sleep(3)
+    if len(username) <= 0:
         login()
-    password = input("Password: ")
-    passw = Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('password')])
-    if password == passw:
-        pass
-        stuff.username = username
-        if Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('admin')]) == 'yes':
-            stuff.admin = True
-        else:
-            stuff.admin = False
     else:
-        stuff.login_tries += 1
-        print(f"{COLOR.RED}Password does not match user!")
-        sleep(3)
-        login()
+        try:
+            with open(f'creds/{Encryption.encrypt(username)}.json', 'r') as f:
+                cfg = json.load(f)
+                cfg[Encryption.encrypt(username)][Encryption.encrypt('username')]
+        except FileNotFoundError:
+            stuff.login_tries += 1
+            print(f"{COLOR.RED}This user does not exist!{COLOR.RESET}")
+            sleep(3)
+            login()
+        password = input("Password: ")
+        passw = Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('password')])
+        if password == passw:
+            pass
+            stuff.username = username
+            if Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('admin')]) == 'yes':
+                stuff.admin = True
+            else:
+                stuff.admin = False
+        else:
+            stuff.login_tries += 1
+            print(f"{COLOR.RED}Password does not match user!{COLOR.RESET}")
+            sleep(3)
+            login()
 
 def menu():
     system('cls' if os.name == 'nt' else 'clear')
