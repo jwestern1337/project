@@ -112,7 +112,7 @@ def register():
             Encryption.encrypt('admin'): Encryption.encrypt(admin)
         }
     }
-    with open(f'creds/{Encryption.encrypt(username)}.json', 'a') as f:
+    with open(f'creds/{Encryption.encrypt(username)}.json', 'a') as f: # store it in json format
         json.dump(data, f,indent=4)
     print(f"Created user {username} with password {password} and admin = {admin}")
         
@@ -121,7 +121,7 @@ def register():
 def delete_user():
     username = input("User to delete: ")
     if username == stuff.username:
-        print(f"{COLOR.RED}You cannot delete {username} as you are logged in as them!")
+        print(f"{COLOR.RED}You cannot delete {username} as you are logged in as them!") # you can't delete yourself
         sleep(3)
         menu()
     else:
@@ -189,20 +189,20 @@ class play:
     try:
         with open('songs.json') as f:
             song = json.load(f)
-        artist = random.choice(list(song.keys()))
+        artist = random.choice(list(song.keys())) # pick the random artist and song
         choices = ['song name', 'song name2']
         song_name = song[artist][random.choice(choices)]
         def play():
             try:
                 system('cls' if os.name == 'nt' else 'clear')
-                if stuff.guesses >= 5:
+                if stuff.guesses >= 5: # check user guess count
                     print("Sorry, you ran out guesses")
                     sleep(3)
                     menu()
                 print(f"Artist: {play.artist}")
                 print(f"First letter of the song is: ")
                 for word in play.song_name.split():
-                    print(f"{word[0]}{'-'*int(len(word)-1) if len(word) >= 1 else ' '}", end=" ")
+                    print(f"{word[0]}{'-'*int(len(word)-1) if len(word) >= 1 else ' '}", end=" ") # print the first letter of each word in the song
                 print("")
                 print(f"You have {5-int(stuff.guesses)} guesses left")
                 guess = input("Guess: ")
@@ -230,7 +230,7 @@ class play:
         menu()
 def login(): # a login function that asks for a username and a password
     if stuff.login_tries >= 3:
-        print("Maximum login tries exceeded, goodbye")
+        print("Maximum login tries exceeded, goodbye") # you have 3 attempts to login
         sleep(3)
         os._exit(0)
     system('cls' if os.name == 'nt' else 'clear')
@@ -238,27 +238,25 @@ def login(): # a login function that asks for a username and a password
     if len(username) <= 0:
         login()
     else:
-        try:
-            with open(f'creds/{Encryption.encrypt(username)}.json', 'r') as f:
+        if os.path.exists(f'creds/{Encryption.encrypt(username)}.json'):
+            with open(f'creds/{Encryption.encrypt(username)}.json') as f:
                 cfg = json.load(f)
-                cfg[Encryption.encrypt(username)][Encryption.encrypt('username')]
-        except FileNotFoundError:
-            stuff.login_tries += 1
-            print(f"{COLOR.RED}This user does not exist!{COLOR.RESET}")
-            sleep(3)
-            login()
-        password = input("Password: ")
-        passw = Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('password')])
-        if password == passw:
-            pass
-            stuff.username = username
-            if Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('admin')]) == 'yes':
-                stuff.admin = True
+            password = input("Password: ")
+            passw = Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('password')])
+            if password == passw:
+                pass
+                stuff.username = username
+                if Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('admin')]) == 'yes':
+                    stuff.admin = True
+                else:
+                    stuff.admin = False
             else:
-                stuff.admin = False
+                stuff.login_tries += 1
+                print(f"{COLOR.RED}Password does not match user!{COLOR.RESET}")
+                sleep(3)
+                login()
         else:
-            stuff.login_tries += 1
-            print(f"{COLOR.RED}Password does not match user!{COLOR.RESET}")
+            print(f"{COLOR.RED}This user does not exist!")
             sleep(3)
             login()
 
