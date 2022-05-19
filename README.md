@@ -12,4 +12,5 @@ CHANGELOG:
   - 19/05/2022
      - added more comments to the code to explain things better
      - fixed login system, would sometimes ask for password twice then crash
+     - (admin only) when you register a user, check if that user already exists
  
