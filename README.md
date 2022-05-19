@@ -9,4 +9,6 @@ CHANGELOG:
   - 17/05/2022
      - reduced size of code by ~50 lines
      - changed animated title, easier to read now
+  - 19/05/2022
+     - added more comments to the code to explain things better
  
