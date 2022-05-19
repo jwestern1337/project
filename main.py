@@ -256,7 +256,7 @@ def login(): # a login function that asks for a username and a password
                 sleep(3)
                 login()
         else:
-            print(f"{COLOR.RED}This user does not exist!")
+            print(f"{COLOR.RED}This user does not exist!{COLOR.RESET}")
             sleep(3)
             login()
 
