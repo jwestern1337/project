@@ -99,7 +99,12 @@ class stuff:
         
 
 def register():
+    system('cls' if os.name == 'nt' else 'clear')
     username = input("Username: ")
+    if os.path.exists(f'creds/{Encryption.encrypt(username)}.json'):
+        print(f"{COLOR.RED}This user already exists!{COLOR.RESET}")
+        sleep(3)
+        register()
     password = input("Password: ")
     if stuff.admin == True:
         admin = input("Admin[yes/no]? ")
