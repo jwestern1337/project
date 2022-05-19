@@ -11,4 +11,5 @@ CHANGELOG:
      - changed animated title, easier to read now
   - 19/05/2022
      - added more comments to the code to explain things better
+     - fixed login system, would sometimes ask for password twice then crash
  
