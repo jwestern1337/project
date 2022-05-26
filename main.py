@@ -51,7 +51,9 @@ def title(): # ugly animated title code ahhhhhhhhhh
     while True:
         slow_title("Music guessing game")
 
-threading.Thread(target=title).start()
+t = threading.Thread(target=title)
+t.daemon = True # set the thread to be killable
+t.start()
 
 # class holding both the encryption and decryption algorithim, they use a encryption method called caeser shift
 # caeser shift takes each letter in the given string and replaces it with the next letter in the alphabet (after the given key(shift))
