@@ -105,21 +105,19 @@ def register():
         print(f"{COLOR.RED}This user already exists!{COLOR.RESET}")
         sleep(3)
         register()
-    password = input("Password: ")
-    if stuff.admin == True:
-        admin = input("Admin[yes/no]? ")
     else:
-        admin = False
-    data = {
-        Encryption.encrypt(username): {
-            Encryption.encrypt('username'): Encryption.encrypt(username),
-            Encryption.encrypt('password'): Encryption.encrypt(password),
-            Encryption.encrypt('admin'): Encryption.encrypt(admin)
+        password = input("Password: ")
+        admin = input("Admin[yes/no]? ")
+        data = {
+            Encryption.encrypt(username): {
+                Encryption.encrypt('username'): Encryption.encrypt(username),
+                Encryption.encrypt('password'): Encryption.encrypt(password),
+                Encryption.encrypt('admin'): Encryption.encrypt(admin)
+            }
         }
-    }
-    with open(f'creds/{Encryption.encrypt(username)}.json', 'a') as f: # store it in json format
-        json.dump(data, f,indent=4)
-    print(f"Created user {username} with password {password} and admin = {admin}")
+        with open(f'creds/{Encryption.encrypt(username)}.json', 'a') as f: # store it in json format
+            json.dump(data, f,indent=4)
+        print(f"Created user {username} with password {password} and admin = {admin}")
         
     
 
@@ -312,3 +310,4 @@ def menu():
 setup()
 login()
 menu()
+
