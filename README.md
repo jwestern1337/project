@@ -13,4 +13,6 @@ CHANGELOG:
      - added more comments to the code to explain things better
      - fixed login system, would sometimes ask for password twice then crash
      - (admin only) when you register a user, check if that user already exists
- 
+  - 26/05/2022
+     - (admin only) when registering a user, sometimes it would create the user, ask for their password, then create the user again. thats now fixed
+     - fixed a typo in the play function
