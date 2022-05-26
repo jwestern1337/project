@@ -203,7 +203,7 @@ class play:
                     sleep(3)
                     menu()
                 print(f"Artist: {play.artist}")
-                print(f"First letter of the song is: ")
+                print(f"First letters of the song are: ")
                 for word in play.song_name.split():
                     print(f"{word[0]}{'-'*int(len(word)-1) if len(word) >= 1 else ' '}", end=" ") # print the first letter of each word in the song
                 print("")
