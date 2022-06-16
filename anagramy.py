@@ -1,4 +1,4 @@
-"""
+""
 def is_anagram(one, two):
     if len(one) != len(two):
         return False
@@ -33,17 +33,12 @@ def bubble_sort(array):
     return array
 
 
-def sort(string):
-    alpha = "abcdefghijklmbnopqrstuvwyxzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-    s = str(string)
-    sorted_pos = []
-    final = []
-    for i in s:
-        pos = alpha.index(i)
-        sorted_pos.append(pos)
-    for num in bubble_sort(sorted_pos):
-        final.append(alpha[num])
-    return ''.join(final)
+def sort():
+    string=input("Word: ")
+    word_to_sort = []
+    for s in string:
+        word_to_sort.append(s)
+    print(bubble_sort(word_to_sort))
 
-print(sort("test"))
-print(sort("dcba312"))
+    
+sort()
