@@ -2,6 +2,11 @@
 
 A python project written for my computer science class
 
+There is a user login system
+The user is given first letter of each word in a song title and the song producer.
+The user is then given 5 guesses to get the correct song , if they get it right then they get congratulated.
+There are admin functions such as adding a user or deleting user accounts.
+
 CHANGELOG:
   - 11/05/2022
      - made it so you cannot delete the user you are logged in as
