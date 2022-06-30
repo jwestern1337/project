@@ -25,3 +25,4 @@ CHANGELOG:
   - 30/06/2022
      - Improved setup function, detects if the creds directory is empty
      - Fixed a few errors in the setup function
+     - Reduced size of file by 2 lines
