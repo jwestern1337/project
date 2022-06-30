@@ -47,14 +47,13 @@ def slow_title(message):
         sleep(0.1)
         
 
-def title(): # ugly animated title code ahhhhhhhhhh
+def title(): # ugly animated title code
     while True:
         slow_title("Music guessing game")
 
 t = threading.Thread(target=title)
 t.daemon = True # set the thread to be killable
 t.start()
-
 # class holding both the encryption and decryption algorithim, they use a encryption method called caeser shift
 # caeser shift takes each letter in the given string and replaces it with the next letter in the alphabet (after the given key(shift))
 # e.g. with a shift of 4 places, "abc" would become "efg"
@@ -139,53 +138,49 @@ def delete_user():
 
 
 def setup(): # if creds.json doesn't exist then create it with a username and password
-    if os.path.exists('creds'):
-        return True
-    else:
-        os.mkdir('creds')
-        print("No username or password file found. Please create a user")
-        username = input("Username: ")
-        password = input("Password: ")
-        admin = input("Admin[yes/no]? ")
-        if admin != 'yes':
-            if admin != 'no':
-                print(f"{COLOR.RED}Please enter either 'yes' or 'no' next time!")
-                sleep(3)
-                system('cls' if os.name == 'nt' else 'clear')
-                login()
-        print(f"""
+    print("No username or password file found. Please create a user")
+    username = input("Username: ")
+    password = input("Password: ")
+    admin = input("Admin[yes/no]? ")
+    if admin != 'yes':
+        if admin != 'no':
+            print(f"{COLOR.RED}Please enter either 'yes' or 'no' next time!")
+            sleep(3)
+            system('cls' if os.name == 'nt' else 'clear')
+            setup()
+    print(f"""
 username: {username}
 password: {password}
 admin: {admin}
 """)
-        confirm = input("Is this correct[yes/no]? ")
-        if confirm != 'yes':
-            if confirm != 'no':
-                print("Please enter either 'yes' or 'no' next time!")
-                sleep(3)
-                system('cls' if os.name == 'nt' else 'clear')
-                login()
-            elif confirm == 'no':
-                setup()
-        elif confirm == 'yes':
-            try:
-                username = Encryption.encrypt(username)
-                password = Encryption.encrypt(password)
-                admin = Encryption.encrypt(admin)
-                data = {
-                    username: {
-                        Encryption.encrypt('username'): username,
-                        Encryption.encrypt('password'): password,
-                        Encryption.encrypt('admin'): admin
-                    }
+    confirm = input("Is this correct[yes/no]? ")
+    if confirm != 'yes':
+        if confirm != 'no':
+            print("Please enter either 'yes' or 'no' next time!")
+            sleep(3)
+            system('cls' if os.name == 'nt' else 'clear')
+            setup()
+        elif confirm == 'no':
+            setup()
+    elif confirm == 'yes':
+        try:
+            username = Encryption.encrypt(username)
+            password = Encryption.encrypt(password)
+            admin = Encryption.encrypt(admin)
+            data = {
+                username: {
+                    Encryption.encrypt('username'): username,
+                    Encryption.encrypt('password'): password,
+                    Encryption.encrypt('admin'): admin
                 }
-                with open(f'creds/{username}.json', 'w') as f:
-                    json.dump(data, f, indent=4)
-                    print("Successfully created a user account, re directing to the main menu is 3 seconds...")
-                    sleep(3)
-            except Exception as e:
-                print(e)
-                input()
+            }
+            with open(f'creds/{username}.json', 'w') as f:
+                json.dump(data, f, indent=4)
+                print("Successfully created a user account, re directing to the main menu is 3 seconds...")
+                sleep(3)
+        except Exception as e:
+            print(e)
+            input()
 
 
 
@@ -308,8 +303,11 @@ def menu():
         print(f"{COLOR.RED}Please enter a valid option next time")
         sleep(2)
         menu()
-
-setup()
+try:
+    if len(os.listdir('creds')) == 0:
+        setup()
+except:
+    os.mkdir('creds')
+    setup()
 login()
 menu()
-
