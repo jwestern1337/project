@@ -22,3 +22,6 @@ CHANGELOG:
      - (admin only) when registering a user, sometimes it would create the user, ask for their password, then create the user again. thats now fixed
      - fixed a typo in the play function
      - set the thread that ran the animated title screen to be killable (daemon = True) so if you ctrl+c it will close the program at some points rather than staying open
+  - 30/06/2022
+     - Improved setup function, detects if the creds directory is empty
+     - Fixed a few errors in the setup function
