@@ -1,7 +1,9 @@
 # import required libraries
-import os, json, string, random, threading, ctypes, threading
+import os, json, string, random, threading, ctypes, threading, sqlite3
 from os import system
 from time import sleep
+from database import user_db, song_db
+
 
 class COLOR: # color classes using ansi escape sequences, "borrowed" from https://github.com/sqlmapproject/sqlmap/blob/master/lib/core/enums.py
     BLUE = "\033[34m"
@@ -38,276 +40,223 @@ class COLOR: # color classes using ansi escape sequences, "borrowed" from https:
     BOLD_BLACK = "\033[30;1m"
     RED = "\033[31m"
 
-def slow_title(message):
-    for i in range(len(message)+1):
-        ctypes.windll.kernel32.SetConsoleTitleW(message[:i])
-        sleep(0.1)
-    for i in range(len(message)+1):
-        ctypes.windll.kernel32.SetConsoleTitleW(message[i:])
-        sleep(0.1)
-        
 
-def title(): # ugly animated title code
-    while True:
-        slow_title("Music guessing game")
-
-t = threading.Thread(target=title)
-t.daemon = True # set the thread to be killable
-t.start()
-# class holding both the encryption and decryption algorithim, they use a encryption method called caeser shift
-# caeser shift takes each letter in the given string and replaces it with the next letter in the alphabet (after the given key(shift))
-# e.g. with a shift of 4 places, "abc" would become "efg"
-class Encryption:
-    def encrypt(message, key=7): # key = shift
-        message = message.upper()
-        alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        num = "10987654321"
-        result = ""
-
-        for letter in message:
-            if letter in alpha: 
-                letter_index = (alpha.find(letter) + key) % len(alpha)
-
-                result = result + alpha[letter_index]
-            else:
-                result = result + num[letter_index]
-
-        return result
-
-    def decrypt(message, key=7):
-        message = message.upper()
-        alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        result = ""
-
-        for letter in message:
-            if letter in alpha:
-                letter_index = (alpha.find(letter) - key) % len(alpha)
-
-                result = result + alpha[letter_index]
-            else:
-                result = result + letter
-
-        return result.lower()
-
-# a class to allow for any data that may need storing to be stored
-class stuff:
-    login_tries = 0
-    username = ''
-    guesses = 0
-    score = 5
-    admin = ''
-
-        
-
-def register():
-    system('cls' if os.name == 'nt' else 'clear')
-    username = input("Username: ")
-    if os.path.exists(f'creds/{Encryption.encrypt(username)}.json'):
-        print(f"{COLOR.RED}This user already exists!{COLOR.RESET}")
-        sleep(3)
-        register()
+def setup():
+    if os.path.isfile("users.db"):
+        return
     else:
-        password = input("Password: ")
-        admin = input("Admin[yes/no]? ")
-        data = {
-            Encryption.encrypt(username): {
-                Encryption.encrypt('username'): Encryption.encrypt(username),
-                Encryption.encrypt('password'): Encryption.encrypt(password),
-                Encryption.encrypt('admin'): Encryption.encrypt(admin)
-            }
-        }
-        with open(f'creds/{Encryption.encrypt(username)}.json', 'a') as f: # store it in json format
-            json.dump(data, f,indent=4)
-        print(f"Created user {username} with password {password} and admin = {admin}")
-        
+        print(f"No user database found.\nCreating one now.")
+        user_db().create_table()
+        user_db().add_user("admin", "admin", 0, True)
+        print(f"User database created.\nAdmin account created (username: admin, password: admin)\n")
+        sleep(1)
+    if os.path.isfile("songs.db"):
+        return
+    else:
+        print(f"No song database found.\nCreating one now.")
+        song_db().create_table()
+        print(f"Song database created.\nPlease add some songs once you have logged in.")
+        sleep(1)
+
+class user:
+    score = 0
+    username = ""
+
+class Login:
+    def __init__(self):
+        self.username = ''
+        self.password = ''
+        self.score = 0
+        self.admin = False
     
+    def login(self):
+        users = user_db()
+        username = input("Username: ")
+        password = input("Password: ")
+        if username == '' or password == '':
+            print("Username or password cannot be empty!")
+            return False
+        if users.get_user(username) == None:
+            print("Username does not exist!")
+            return False
+        if users.get_user(username):
+            if users.get_user(username)[1] == password:
+                self.username = username
+                self.password = password
+                self.score = users.get_player_score(self.username)
+                user.score = self.score
+                user.username = self.username
+                self.admin = True if users.get_user(username)[3] == 1 else False
+                return True
+            else:
+                print("Password is incorrect!")
+                sleep(1.5)
+                self.login()
+    def register(self):
+        users = user_db()
+        username = input("Username: ")
+        password = input("Password: ")
+        is_admin = input("Admin (y/n): ")
+        if is_admin == 'y':
+            users.add_user(username, password, 0, True)
+        else:
+            users.add_user(username, password, 0, False)
+    
+    def logout(self):
+        self.username = ''
+        self.password = ''
+        self.score = 0
+        self.admin = False
+        self.login()
 
-def delete_user():
-    username = input("User to delete: ")
-    if username == stuff.username:
-        print(f"{COLOR.RED}You cannot delete {username} as you are logged in as them!") # you can't delete yourself
-        sleep(3)
-        menu()
-    else:
-        if os.path.exists(f'creds/{Encryption.encrypt(username)}.json'):
-            try:
-                os.remove(f'creds/{Encryption.encrypt(username)}.json')
-                print(f"deleted user {username}")
-            except Exception as e:
-                print(e)
-
-
-def setup(): # if creds.json doesn't exist then create it with a username and password
-    print("No username or password file found. Please create a user")
-    username = input("Username: ")
-    password = input("Password: ")
-    admin = input("Admin[yes/no]? ")
-    if admin != 'yes':
-        if admin != 'no':
-            print(f"{COLOR.RED}Please enter either 'yes' or 'no' next time!")
-            sleep(3)
-            system('cls' if os.name == 'nt' else 'clear')
-            setup()
-    print(f"""
-username: {username}
-password: {password}
-admin: {admin}
-""")
-    confirm = input("Is this correct[yes/no]? ")
-    if confirm != 'yes':
-        if confirm != 'no':
-            print("Please enter either 'yes' or 'no' next time!")
-            sleep(3)
-            system('cls' if os.name == 'nt' else 'clear')
-            setup()
-        elif confirm == 'no':
-            setup()
-    elif confirm == 'yes':
-        try:
-            username = Encryption.encrypt(username)
-            password = Encryption.encrypt(password)
-            admin = Encryption.encrypt(admin)
-            data = {
-                username: {
-                    Encryption.encrypt('username'): username,
-                    Encryption.encrypt('password'): password,
-                    Encryption.encrypt('admin'): admin
-                }
-            }
-            with open(f'creds/{username}.json', 'w') as f:
-                json.dump(data, f, indent=4)
-                print("Successfully created a user account, re directing to the main menu is 3 seconds...")
-                sleep(3)
-        except Exception as e:
-            print(e)
-            input()
+def title(message):
+    while True:
+        for i in range(len(message)+1):
+            ctypes.windll.kernel32.SetConsoleTitleW(message[:i])
+            sleep(0.1)
+        for i in range(len(message)+1):
+            ctypes.windll.kernel32.SetConsoleTitleW(message[i:])
+            sleep(0.1)
 
 
+class Game:
+    def __init__(self):
+        self.songs = song_db()
+        self.conn = sqlite3.connect("users.db")
+        self.c = self.conn.cursor()
 
-# the main game function
-class play:
-    try:
-        with open('songs.json') as f:
-            song = json.load(f)
-        artist = random.choice(list(song.keys())) # pick the random artist and song
-        choices = ['song name', 'song name2']
-        song_name = song[artist][random.choice(choices)]
-        def play():
+    def get_song(self):
+        song = self.songs.get_random_song()
+        return song[0], song[1]
+
+    def add_score(self, username):
+        cone = sqlite3.connect("users.db")
+        c = cone.cursor()
+        c.execute("UPDATE users SET score = score + 1 WHERE name = ?", (username,))
+        cone.commit()
+    
+    def play(self):
+        stop = False
+        song = self.get_song()
+        print(F"Artist: {song[1]}")
+        print(F"Song:")
+        for word in song[0].split():
+            print(f"{word[0]}{'-'*int(len(word)-1) if len(word) >= 1 else ' '}", end=" ")
+        if stop != True:
+            guess = input("\nGuess: ")
+            if guess.lower() == song[0].lower():
+                user.score += 1
+                self.add_score(user.username)
+                print(f"Correct!\nScore: {user.score}")
+                again = input("Play again? (y/n): ")
+                if again.lower() == 'y':
+                    self.play()
+                else:
+                    print("Thanks for playing!")
+                    sleep(1)
+                    return
+            else:
+                print("Incorrect!")
+
+            
+
+class Main:
+    def __init__(self):
+        self.login = Login()
+        self.game = Game()
+        self.db = user_db()
+        self.login.login()
+
+    def leaderboard(self):
+        print("Leaderboard:")
+        for user in self.db.get_high_scores():
+            print(f"{user[0]}: {user[2]}")
+        input("Press enter to continue...")
+        
+    def main(self):
+        threading.Thread(target=title, args=(f"Music guessing game - Logged in as: {user.username} - Score: {user.score}",)).start()
+        while True:
             try:
                 system('cls' if os.name == 'nt' else 'clear')
-                if stuff.guesses >= 5: # check user guess count
-                    print("Sorry, you ran out guesses")
-                    sleep(3)
-                    menu()
-                print(f"Artist: {play.artist}")
-                print(f"First letters of the song are: ")
-                for word in play.song_name.split():
-                    print(f"{word[0]}{'-'*int(len(word)-1) if len(word) >= 1 else ' '}", end=" ") # print the first letter of each word in the song
-                print("")
-                print(f"You have {5-int(stuff.guesses)} guesses left")
-                guess = input("Guess: ")
-                if guess.lower() == play.song_name or guess.upper() == play.song_name:
-                    print(f"Congrats, you guessed correctly! you have a score of {stuff.score}")
-                    again = input("Play again[yes/no]? ")
-                    if again == 'yes':
-                        with open('songs.json') as f:
-                            play.song = json.load(f)
-                        play.artist = random.choice(list(play.song.keys()))
-                        choices = ['song name', 'song name2']
-                        play.song_name = play.song[play.artist][random.choice(choices)]
-                        play.play()
-                    else:
-                        menu()
-                else:
-                    print("Incorrect!")
-                    sleep(2)
-                    stuff.guesses += 1
-                    stuff.score -= 1
-                    play.play()
-            except KeyboardInterrupt:
-                menu()
-    except KeyboardInterrupt:
-        menu()
-def login(): # a login function that asks for a username and a password
-    if stuff.login_tries >= 3:
-        print("Maximum login tries exceeded, goodbye") # you have 3 attempts to login
-        sleep(3)
-        os._exit(0)
-    system('cls' if os.name == 'nt' else 'clear')
-    username = input("Username: ")
-    if len(username) <= 0:
-        login()
-    else:
-        if os.path.exists(f'creds/{Encryption.encrypt(username)}.json'):
-            with open(f'creds/{Encryption.encrypt(username)}.json') as f:
-                cfg = json.load(f)
-            password = input("Password: ")
-            passw = Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('password')])
-            if password == passw:
-                pass
-                stuff.username = username
-                if Encryption.decrypt(cfg[Encryption.encrypt(username)][Encryption.encrypt('admin')]) == 'yes':
-                    stuff.admin = True
-                else:
-                    stuff.admin = False
-            else:
-                stuff.login_tries += 1
-                print(f"{COLOR.RED}Password does not match user!{COLOR.RESET}")
-                sleep(3)
-                login()
-        else:
-            print(f"{COLOR.RED}This user does not exist!{COLOR.RESET}")
-            sleep(3)
-            login()
-
-def menu():
-    system('cls' if os.name == 'nt' else 'clear')
-    print(f"""
+                print(f"""{self.login.username}'s score: {user.score}
 {COLOR.CYAN}╔╦╗╔═╗╦╔╗╔  {COLOR.LIGHT_MAGENTA}╔╦╗╔═╗╔╗╔╦ ╦
 {COLOR.CYAN}║║║╠═╣║║║║  {COLOR.LIGHT_MAGENTA}║║║║╣ ║║║║ ║
 {COLOR.CYAN}╩ ╩╩ ╩╩╝╚╝  {COLOR.LIGHT_MAGENTA}╩ ╩╚═╝╝╚╝╚═╝
 {COLOR.LIGHT_GREEN}====== music guessing game ======
 {COLOR.YELLOW}1. play the game
 2. logout
-3. register a user (admin only)
-4. delete a user (admin only)
-5. exit{COLOR.RESET}
-""")
-    choice = input("Choice: ")
-    if choice == "1":
-        play.play()
-    elif choice == "2":
-        login()
-        menu()
-    elif choice == "3":
-        if stuff.admin == True:
-            register()
-            sleep(2)
-            menu()
-        else:
-            print(f"{COLOR.RED}This feature is for admin users only")
-            sleep(2)
-            menu()
-    elif choice == "4":
-        if stuff.admin == True:
-            delete_user()
-            sleep(2)
-            menu()
-        else:
-            print(f"{COLOR.RED}This feature is for admin users only")
-            sleep(2)
-            menu()
-    elif choice == "5":
-        os._exit(1)
-    else:
-        print(f"{COLOR.RED}Please enter a valid option next time")
-        sleep(2)
-        menu()
-try:
-    if len(os.listdir('creds')) == 0:
-        setup()
-except:
-    os.mkdir('creds')
-    setup()
-login()
-menu()
+3. leaderboard
+4. register a user (admin only)
+5. delete a user (admin only)
+6. list all users (admin only)
+7. add a song (admin only)
+8. delete a song (admin only)
+9. list all songs (admin only)
+10. exit{COLOR.RESET}
+            """)
+                choice = input("Choice: ")
+                if choice == '1':
+                    self.game.play()
+                elif choice == '2':
+                    self.login.logout()
+                elif choice == '3':
+                    self.leaderboard()
+                elif choice == '4':
+                    if self.login.admin:
+                        self.login.register()
+                    else:
+                        print("You are not an admin!")
+                        sleep(1.5)
+                elif choice == '5':
+                    if self.login.admin:
+                        username = input("Username: ")
+                        self.db.delete_user(username if username != self.login.username else print("You cannot delete yourself!"))
+                        sleep(1.5)
+                    else:
+                        print("You are not an admin!")
+                        sleep(1.5)
+                elif choice == '6':
+                    if self.login.admin:
+                        print(self.db.get_all_users())
+                        sleep(1.5)
+                    else:
+                        print("You are not an admin!")
+                        sleep(1.5)
+                elif choice == '7':
+                    if self.login.admin:
+                        song = input("Song: ")
+                        artist = input("Artist: ")
+                        song_db().add_song(song, artist)
+                        print("Song added!")
+                        sleep(1.5)
+                    else:
+                        print("You are not an admin!")
+                        sleep(1.5)
+                elif choice == '8':
+                    if self.login.admin:
+                        song = input("Song: ")
+                        song_db().delete_song(song)
+                        print("Song deleted!")
+                        sleep(1.5)
+                    else:
+                        print("You are not an admin!")
+                        sleep(1.5)
+                elif choice == '9':
+                    if self.login.admin:
+                        print(song_db().get_all_songs())
+                        sleep(1.5)
+                    else:
+                        print("You are not an admin!")
+                        sleep(1.5)
+                elif choice == '10':
+                    print("Thanks for playing!")
+                    os._exit(0)
+                else:
+                    print("Invalid choice!")
+                    sleep(1.5)
+            except KeyboardInterrupt:
+                print("Thanks for playing!")
+                os._exit(1)
+
+setup()
+Main().main()
