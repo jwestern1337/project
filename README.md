@@ -26,3 +26,8 @@ CHANGELOG:
      - Improved setup function, detects if the creds directory is empty
      - Fixed a few errors in the setup function
      - Reduced size of file by 2 lines
+  - 22/07/2022
+     - re wrote entire game code to now use an sql database as oppose to using json for everything
+     - wrote an sql database
+     - added a leaderboard
+     - (admin only) added the option to add and delete as many songs as you wish
